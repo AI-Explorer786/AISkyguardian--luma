@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkyGuardian AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <div class="header">✨ Meet Luma & Nox ✨</div>
+
+    <div class="character-container">
+        <div>
+            <img src="{{ url_for('static', filename='images/luma.png') }}" alt="Luma AI">
+            <p>Luma AI</p>
+        </div>
+        <div>
+            <img src="{{ url_for('static', filename='images/nox.png') }}" alt="Nox AI">
+            <p>Nox AI</p>
+        </div>
+    </div>
+
+    <button class="glowing-button">🌟 Meet Luma or Nox 🌙</button>
+
+    <div class="chatbox">
+        <p>Hi! I'm Luma. Ask me anything about light pollution.</p>
+        <input type="text" placeholder="Type your message...">
+        <button>Send</button>
+    </div>
+
+    <!-- Camera Capture Section -->
+    <video id="video" autoplay playsinline></video>
+    <button id="capture">📸 Capture Sky</button>
+    <canvas id="canvas" style="display: none;"></canvas>
+    <img id="preview" style="display: none; width: 200px; margin-top: 10px; border-radius: 10px;"/>
+
+    <script>
+        const video = document.getElementById("video");
+        const captureBtn = document.getElementById("capture");
+        const canvas = document.getElementById("canvas");
+        const preview = document.getElementById("preview");
+        const ctx = canvas.getContext("2d");
+
+        // Ask for camera permission & start video
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+            .then((stream) => { video.srcObject = stream; })
+            .catch((err) => console.error("Camera error:", err));
+
+        // Capture frame when button is clicked
+        captureBtn.addEventListener("click", () => {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // Show Preview
+            preview.src = canvas.toDataURL("image/jpeg");
+            preview.style.display = "block";
+
+            // Send image to backend
+            canvas.toBlob((blob) => {
+                let formData = new FormData();
+                formData.append("image", blob);
+                fetch("/analyze", { method: "POST", body: formData })
+                    .then((res) => res.json())
+                    .then((data) => alert("Light Pollution Level: " + data.level))
+                    .catch((err) => console.error("Error analyzing image:", err));
+            }, "image/jpeg");
+        });
+    </script>
+
+</body>
+</html>

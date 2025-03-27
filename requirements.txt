@@ -1,0 +1,11 @@
+flask
+gunicorn
+requests
+python-dotenv
+flask-cors       # If handling CORS
+flask-wtf        # If using Flask forms
+flask-sqlalchemy # If using a database
+pillow           # If working with images
+opencv-python    # If using OpenCV
+numpy            # If working with arrays/matrices
+
